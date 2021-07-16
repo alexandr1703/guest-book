@@ -1,0 +1,21 @@
+name: guest
+type: theme
+description: This is sub theme of Classy
+core_version_requirement: ^8 || ^9
+# Defines the base theme
+base theme: bartik
+# Defines libraries group in which we can add css/js.
+libraries:
+  - guest/global-styling
+# Regions
+regions:
+  header: Header
+  primary_menu: 'Primary menu'
+  secondary_menu: 'Secondary menu'
+  page_top: 'Page top'
+  page_bottom: 'Page bottom'
+  highlighted: Highlighted
+  breadcrumb: Breadcrumb
+  content: Content
+  footer_first: 'Footer first'
+

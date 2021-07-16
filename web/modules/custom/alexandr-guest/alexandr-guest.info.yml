@@ -1,0 +1,5 @@
+name: 'Alexandr-guest'
+type: module
+description: "This module creates a guest book."
+core_version_requirement: ^9.0
+package: "alexandr"
