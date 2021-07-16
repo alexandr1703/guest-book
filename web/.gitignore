@@ -53,3 +53,7 @@ example.gitignore
 LICENSE
 README.md
 .idea
+.ht.router.php
+INSTALL.txt
+README.txt
+

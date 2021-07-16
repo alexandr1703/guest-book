@@ -1,0 +1,6 @@
+alexandr_guest.form:
+  path: 'alexandr/guest'
+  defaults:
+    _controller: 'Drupal\alexandr_guest/Controller\GuestController::createForm'
+  requirements:
+    _permisssion: 'access content'
