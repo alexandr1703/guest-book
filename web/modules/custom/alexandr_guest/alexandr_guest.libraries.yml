@@ -1,0 +1,4 @@
+alexandr_guest-style:
+  css:
+    theme:
+      css/Gtable.css: {}

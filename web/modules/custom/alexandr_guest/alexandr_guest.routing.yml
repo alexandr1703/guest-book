@@ -1,0 +1,23 @@
+alexandr_guest.form:
+  path: 'alexandr/guest'
+  defaults:
+    _controller: 'Drupal\alexandr_guest\Controller\GuestController::report'
+  requirements:
+    _permission: ' access content '
+
+delete.form:
+  path: 'guest/delete/{cid}'
+  defaults:
+    _form: 'Drupal\alexandr_guest\Form\DeleteForm'
+  requirements:
+    _permission: 'administer site configuration'
+    id: ^\d+$
+
+edit.form:
+  path: 'guest/edit/{cid}'
+  defaults:
+    _form: 'Drupal\alexandr_guest\Form\EditForm'
+  requirements:
+    _permission: 'administer site configuration'
+    id: ^\d+$
+

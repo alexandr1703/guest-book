@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+function alexandr_guest_theme($existing, $type, $theme, $path) {
+  return [
+    'guest_book' => [
+      'variables' => ['form' => [], 'items' => []],
+      'template' => 'guest_book',
+    ],
+  ];
+}

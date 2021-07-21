@@ -1,0 +1,73 @@
+<?php
+
+/**
+ * @return mixed
+ * Implements hook_schema()
+ */
+function alexandr_guest_schema() {
+  $schema['alexandr_guest'] = [
+    'description' => 'guest book',
+    'fields'  => [
+      'id' => [
+        'description' => "ID",
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'uid' => [
+        'description' => "UID user",
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'name' => [
+        'description' => "User's cat name",
+        'type' => 'varchar',
+        'length' => 99,
+        'not null' => FALSE,
+        'default' => '',
+      ],
+      'avatar' => [
+        'description' => "User's avatar.",
+        'type' => 'int',
+        'not null' => FALSE,
+        'default' => 0,
+      ],
+      'created' => [
+        'description' => "date of addition",
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => FALSE,
+        'default' => '',
+      ],
+      'comment' => [
+        'description' => "User's comment.",
+        'type' => 'text',
+        'length' => 666,
+        'not null' => FALSE,
+      ],
+      'image' => [
+        'description' => "User's image.",
+        'type' => 'int',
+        'not null' => FALSE,
+        'default' => 0,
+      ],
+      'email' => [
+        'description' => "User's email address",
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => FALSE,
+        'default' => '',
+      ],
+      'phone' => [
+        'description' => "User's phone number.",
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => FALSE,
+        'default' => '',
+      ],
+    ],
+    'primary key' => ['id'],
+  ];
+  return $schema;
+}

@@ -1,0 +1,42 @@
+{{ attach_library('alexandr_guest/alexandr_guest-style') }}
+<div class="guest-form">
+  {{ form }}
+</div>
+{% for item in items %}
+  <div class="col-md-6 table-guest">
+    <div class="row row-user">
+      <div class="row row-user-name col-md-3">
+        <div class="col-md-3 ">
+          {% if item.avatar %}
+            <div class="image-avatar">{{ item.avatar }}</div>
+          {% else %}
+            <div class="image-avatar"><img alt="avatar" src="/modules/custom/alexandr_guest/img/default-avatar.png"></div>
+          {% endif %}
+        </div>
+        <div class="user-field">
+          <p class="user-name">{{ item.name }}</p>
+          <p class="user-submitted"><span> {{ 'Submitted : '|trans }}</span>{{ item.created }}</p>
+        </div>
+      </div>
+      <div class="row row-comment col-md-9">
+        <div class="comment"><p>{{ item.comment }}</p></div>
+        {% if item.image %}
+          <div class="image-comment">{{ item.image }}</div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="row row-contact">
+      <div class="user-contact">
+        <p class="user-email"><span>{{ 'Email: '|trans }}</span>{{ item.email }}</p>
+        <p class="user-phone"><span>{{ 'Phone: +380 '|trans }}</span>{{ item.phone }}</p>
+      </div>
+      <div class="buttons-guest">
+        {% if user.hasPermission('administer nodes') %}
+          <a href="/guest/edit/{{ item.id }}" class="button-guest use-ajax" data-dialog-type="modal">{{ 'Edit' |trans }}</a>
+          <a href="/guest/delete/{{ item.id }}" class="button-guest use-ajax" data-dialog-type="modal">{{ 'Delete'|trans }}</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endfor %}
+

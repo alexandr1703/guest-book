@@ -18,16 +18,28 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 /**
  * Main form.
  */
-class GuestForm extends FormBase {
+class EditForm extends FormBase {
+
+  /**
+   * Id recordd.
+   *
+   * @var ctid
+   * */
+  protected $ctid = 0;
 
   /**
    * Return form.
    */
   public function getFormId() {
-    return 'quest_form';
+    return 'edit_form';
   }
 
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state ,$cid = NULL) {
+    $query = \Drupal::database();
+    $data = $query->select('alexandr_guest', 'a')
+            ->fields('a',[ 'image' , 'avatar', 'name', 'created', 'email', 'phone', 'id', 'comment'])
+            ->condition('a.id' , $cid, '=')
+            ->execute()->fetchAll(\PDO::FETCH_OBJ);
     $form['system_messages'] = [
       '#type' => 'html_tag',
       '#tag' => 'div',
@@ -43,9 +55,10 @@ class GuestForm extends FormBase {
       '#required' => TRUE,
       '#maxlength' => 32,
       '#minlength' => 2,
+      '#default_value' => $data[0]->name,
       '#ajax' => [
         'callback' => '::setMessageName',
-        'event' => 'keyup',
+        'event' => 'change',
       ],
     ];
 
@@ -53,12 +66,13 @@ class GuestForm extends FormBase {
       '#type' => 'email',
       '#title' => $this->t('Your email'),
       '#required' => TRUE,
+      '#default_value' => $data[0]->email,
       '#attributes' => [
         'placeholder' => t('example@gmail.com'),
       ],
       '#ajax' => [
         'callback' => '::setMessageEmail',
-        'event' => 'keyup',
+        'event' => 'change',
       ],
     ];
 
@@ -66,12 +80,13 @@ class GuestForm extends FormBase {
       '#type' => 'tel',
       '#title' => $this->t('Your phone'),
       '#required' => TRUE,
+      '#default_value' => $data[0]->phone,
       '#attributes' => [
         'placeholder' => t('666-666-6666'),
       ],
       '#ajax' => [
         'callback' => '::setMessagePhone',
-        'event' => 'keyup',
+        'event' => 'change',
       ],
     ];
 
@@ -79,16 +94,18 @@ class GuestForm extends FormBase {
       '#type' => 'textarea',
       '#title' => $this->t('Your comment'),
       '#required' => TRUE,
+      '#default_value' => $data[0]->comment,
       '#ajax' => [
-      'callback' => '::setMessageComment',
-      'event' => 'change',
-    ],
+        'callback' => '::setMessageComment',
+        'event' => 'change',
+      ],
     ];
 
     $form['avatar'] = [
       '#type' => 'managed_file',
       '#title' => t('Your Ava'),
       '#description' => t('Only png, jpg and jpeg.Max size 2Mb.'),
+      '#default_value' => array($data[0]->avatar),
       '#upload_validators' => [
         'file_validate_extensions' => ['png jpg jpeg'],
         'file_validate_size' => [2097152],
@@ -102,6 +119,7 @@ class GuestForm extends FormBase {
       '#type' => 'managed_file',
       '#title' => t('Your Image'),
       '#description' => t('Only png, jpg and jpeg.Max size 5Mb.'),
+      '#default_value' => array($data[0]->image),
       '#upload_validators' => [
         'file_validate_extensions' => ['png jpg jpeg'],
         'file_validate_size' => [5242880],
@@ -124,6 +142,7 @@ class GuestForm extends FormBase {
         ],
       ],
     ];
+    $this->ctid = $cid;
     return $form;
   }
 
@@ -271,7 +290,6 @@ class GuestForm extends FormBase {
       if ($url->isRouted()) {
         $out = $url->toString();
       }
-      \Drupal::messenger()->addMessage($this->t('Thanks for your comment'));
       $ajax_response->addCommand(new RedirectCommand($out));
     }
     return $ajax_response;
@@ -279,37 +297,26 @@ class GuestForm extends FormBase {
 
   public function submitForm(array &$form, FormStateInterface $form_state)
   {
-    $time = time();
     if ($this->validateForm($form, $form_state) == TRUE) {
       $connection = \Drupal::service('database');
-      if (isset($form_state->getValue('image')[0])) {
-        $file = File::load($form_state->getValue('image')[0]);
-        $file->setPermanent();
-        $file->save();
-      }
-      else {
-        $form_state->getValue('image')[0] = 0;
-      }
-      if (isset($form_state->getValue('avatar')[0])) {
-        $ava = File::load($form_state->getValue('avatar')[0]);
-        $ava->setPermanent();
-        $ava->save();
-      }
-      else {
-        $form_state->getValue('avatar')[0] = 0;
-      }
-      $connection->insert('alexandr_guest')
+      $file = File::load($form_state->getValue('image')[0]);
+      $file->setPermanent();
+      $file->save();
+      $avatarfile = File::load($form_state->getValue('avatar')[0]);
+      $avatarfile->setPermanent();
+      $avatarfile->save();
+      $connection->update('alexandr_guest')
+        ->condition('id', $this->ctid)
         ->fields([
-          'uid' => $this->currentUser()->id(),
           'name' => $form_state->getValue('name'),
           'avatar' => $form_state->getValue('avatar')[0],
-          'created' => date($time),
           'comment' => $form_state->getValue('comment'),
           'phone' => $form_state->getValue('phone_number'),
           'email' => $form_state->getValue('email'),
           'image' => $form_state->getValue('image')[0],
         ])
         ->execute();
+      \Drupal::messenger()->addMessage($this->t('Form Edit Successfully'), 'status', TRUE);
     }
 
   }
