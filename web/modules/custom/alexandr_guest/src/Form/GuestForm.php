@@ -58,7 +58,7 @@ class GuestForm extends FormBase {
       ],
       '#theme' => 'image_widget',
       '#preview_image_style' => 'medium',
-      '#upload_location' => 'public://module_image',
+      '#upload_location' => 'public://guest_image',
     ];
     $form['messages-email'] = [
       '#type' => 'html_tag',
@@ -129,7 +129,7 @@ class GuestForm extends FormBase {
       ],
       '#theme' => 'image_widget',
       '#preview_image_style' => 'medium',
-      '#upload_location' => 'public://module_image',
+      '#upload_location' => 'public://guest_image',
     ];
 
     $form['submit'] = [
