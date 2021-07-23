@@ -2,17 +2,13 @@
 
 namespace Drupal\alexandr_guest\Form;
 
-use Drupal\Core\Ajax\InsertCommand;
 use Drupal\Core\Ajax\RedirectCommand;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element\Textfield;
-use Drupal\Core\Render\Element\Tel;
 use Drupal\Core\Url;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\file\Entity\File;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 
 /**
@@ -34,6 +30,9 @@ class EditForm extends FormBase {
     return 'edit_form';
   }
 
+  /**
+   * Build form.
+   */
   public function buildForm(array $form, FormStateInterface $form_state ,$cid = NULL) {
     $query = \Drupal::database();
     $data = $query->select('alexandr_guest', 'a')
@@ -45,13 +44,13 @@ class EditForm extends FormBase {
       '#tag' => 'div',
       '#weight' => -100,
       '#attributes' => [
-        'class' => ['form-message'],
+        'class' => ['edit-form-message'],
       ],
     ];
 
     $form['name'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Your name'),
+      '#title' => $this->t('Name'),
       '#required' => TRUE,
       '#maxlength' => 32,
       '#minlength' => 2,
@@ -64,7 +63,7 @@ class EditForm extends FormBase {
 
     $form['email'] = [
       '#type' => 'email',
-      '#title' => $this->t('Your email'),
+      '#title' => $this->t('Email'),
       '#required' => TRUE,
       '#default_value' => $data[0]->email,
       '#attributes' => [
@@ -78,7 +77,7 @@ class EditForm extends FormBase {
 
     $form['phone_number'] = [
       '#type' => 'tel',
-      '#title' => $this->t('Your phone'),
+      '#title' => $this->t('Phone'),
       '#required' => TRUE,
       '#default_value' => $data[0]->phone,
       '#attributes' => [
@@ -92,7 +91,7 @@ class EditForm extends FormBase {
 
     $form['comment'] = [
       '#type' => 'textarea',
-      '#title' => $this->t('Your comment'),
+      '#title' => $this->t('Comment'),
       '#required' => TRUE,
       '#default_value' => $data[0]->comment,
       '#ajax' => [
@@ -103,9 +102,10 @@ class EditForm extends FormBase {
 
     $form['avatar'] = [
       '#type' => 'managed_file',
-      '#title' => t('Your Ava'),
+      '#title' => t('Ava'),
       '#description' => t('Only png, jpg and jpeg.Max size 2Mb.'),
       '#default_value' => array($data[0]->avatar),
+      '#required' => FALSE,
       '#upload_validators' => [
         'file_validate_extensions' => ['png jpg jpeg'],
         'file_validate_size' => [2097152],
@@ -117,9 +117,10 @@ class EditForm extends FormBase {
 
     $form['image'] = [
       '#type' => 'managed_file',
-      '#title' => t('Your Image'),
+      '#title' => t('Image'),
       '#description' => t('Only png, jpg and jpeg.Max size 5Mb.'),
       '#default_value' => array($data[0]->image),
+      '#required' => FALSE,
       '#upload_validators' => [
         'file_validate_extensions' => ['png jpg jpeg'],
         'file_validate_size' => [5242880],
@@ -131,11 +132,10 @@ class EditForm extends FormBase {
 
     $form['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Add comment'),
+      '#value' => $this->t('Edit'),
       '#ajax' => [
         'callback' => '::ajaxSubmitCallback',
         'event' => 'click',
-        'wrapper' => 'guest_formm',
         'progress' => [
           'type' => 'throbber',
           'message' => t('Verifying...'),
@@ -146,93 +146,109 @@ class EditForm extends FormBase {
     return $form;
   }
 
+  /**
+   * AJAX validation for name.
+   */
   public function setMessageName(array $form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
     $name = $form_state->getValue('name');
     if (strlen($name) <= 1) {
       $response->addCommand(
         new HtmlCommand(
-          '.form-message',
-          '<div class="my-message">' . $this->t('Enter correct name.')
+          '.edit-form-message',
+          '<div class="my-message-edit">' . $this->t('Enter correct name.')
         )
       );
     }
     else {
       $response->addCommand(
         new HtmlCommand(
-          '.form-message',
-          '<div class="my-message">' . $this->t('Name: Ok!')
+          '.edit-form-message',
+          '<div class="my-message-edit">' . $this->t('Name: Ok!')
         )
       );
     }
     return $response;
   }
 
+  /**
+   * AJAX validation for phone.
+   */
   public function setMessagePhone(array $form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
     $phone = $form_state->getValue('phone_number');
     if (((!preg_match('/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/', $phone)) && (!preg_match('/^[0-9]{10}$/', $phone)))) {
       $response->addCommand(
         new HtmlCommand(
-          '.form-message',
-          '<div class="my-message">' . $this->t('Enter correct phone number in format: 666-666-6666 or 1234567890 ')
+          '.edit-form-message',
+          '<div class="my-message-edit">' . $this->t('Enter correct phone number in format: 666-666-6666 or 1234567890 ')
         )
       );
     }
     else {
       $response->addCommand(
         new HtmlCommand(
-          '.form-message',
-          '<div class="my-message">' . $this->t('Phone: Ok!')
+          '.edit-form-message',
+          '<div class="my-message-edit">' . $this->t('Phone: Ok!')
         )
       );
     }
     return $response;
   }
+
+  /**
+   * AJAX validation for email.
+   */
   public function setMessageEmail(array $form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
     $email = $form_state->getValue('email');
     if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/^[A-Za-z-_]+[@]+[a-z]{2,12}+[.]+[a-z]{2,7}+$/', $email)) {
       $response->addCommand(
         new HtmlCommand(
-          '.form-message',
-          '<div class="my-message">' . $this->t('Enter correct email in format: example@gmail.com.')
+          '.edit-form-message',
+          '<div class="my-message-edit">' . $this->t('Enter correct email in format: example@gmail.com.')
         )
       );
     }
     else {
       $response->addCommand(
         new HtmlCommand(
-          '.form-message',
-          '<div class="my-message">' . $this->t('Email: Ok!')
+          '.edit-form-message',
+          '<div class="my-message-edit">' . $this->t('Email: Ok!')
         )
       );
     }
     return $response;
   }
 
+  /**
+   * AJAX validation for comment.
+   */
   public function setMessageComment(array $form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
     $comment = $form_state->getValue('comment');
     if (strlen($comment) <= 1) {
       $response->addCommand(
         new HtmlCommand(
-          '.form-message',
-          '<div class="my-message">' . $this->t('Enter longer comment, be more creative)')
+          '.edit-form-message',
+          '<div class="my-message-edit">' . $this->t('Enter longer comment, be more creative)')
         )
       );
     }
     else {
       $response->addCommand(
         new HtmlCommand(
-          '.form-message',
-          '<div class="my-message">' . $this->t('Good comment!')
+          '.edit-form-message',
+          '<div class="my-message-edit">' . $this->t('Good comment!')
         )
       );
     }
     return $response;
   }
 
+  /**
+   * Validation form.
+   */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
     $name = $form_state->getValue('name');
@@ -261,7 +277,6 @@ class EditForm extends FormBase {
       $errorArray[3] = 1;
     }
     if ($errorArray[0] == 1 && $errorArray[1] == 1 && $errorArray[2] == 1 && $errorArray[3] == 1) {
-//      \Drupal::messenger()->addMessage($this->t('Thanks for your comment')));
       return TRUE;
     }
   }
@@ -295,16 +310,28 @@ class EditForm extends FormBase {
     return $ajax_response;
   }
 
-  public function submitForm(array &$form, FormStateInterface $form_state)
-  {
+  /**
+   * Submit form.
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     if ($this->validateForm($form, $form_state) == TRUE) {
       $connection = \Drupal::service('database');
-      $file = File::load($form_state->getValue('image')[0]);
-      $file->setPermanent();
-      $file->save();
-      $avatarfile = File::load($form_state->getValue('avatar')[0]);
-      $avatarfile->setPermanent();
-      $avatarfile->save();
+      if (!$form_state->getValue('avatar')[0] == NULL){
+        $ava = File::load($form_state->getValue('avatar')[0]);
+        $ava->setPermanent();
+        $ava->save();
+      }
+      else {
+        $form_state->getValue('avatar')[0] = 0;
+      }
+      if (!$form_state->getValue('image')[0] == NULL){
+        $file = File::load($form_state->getValue('image')[0]);
+        $file->setPermanent();
+        $file->save();
+      }
+      else {
+        $form_state->getValue('image')[0] = 0;
+      }
       $connection->update('alexandr_guest')
         ->condition('id', $this->ctid)
         ->fields([
@@ -318,6 +345,5 @@ class EditForm extends FormBase {
         ->execute();
       \Drupal::messenger()->addMessage($this->t('Form Edit Successfully'), 'status', TRUE);
     }
-
   }
 }

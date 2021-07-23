@@ -1,23 +1,43 @@
 alexandr_guest.form:
-  path: 'alexandr/guest'
+  path: '/alexandr/guest'
   defaults:
     _controller: 'Drupal\alexandr_guest\Controller\GuestController::report'
   requirements:
-    _permission: ' access content '
+    _permission: 'access content'
 
 delete.form:
-  path: 'guest/delete/{cid}'
+  path: '/guest/delete/{cid}'
   defaults:
     _form: 'Drupal\alexandr_guest\Form\DeleteForm'
   requirements:
-    _permission: 'administer site configuration'
-    id: ^\d+$
+    _permission: 'administer nodes'
 
 edit.form:
-  path: 'guest/edit/{cid}'
+  path: '/guest/edit/{cid}'
   defaults:
     _form: 'Drupal\alexandr_guest\Form\EditForm'
   requirements:
-    _permission: 'administer site configuration'
-    id: ^\d+$
+    _permission: 'administer nodes'
 
+admindelete.form:
+  path: '/guest/deletee/{cid}'
+  defaults:
+    _form: 'Drupal\alexandr_guest\Form\AdminDeleteForm'
+  requirements:
+    _permission: 'administer nodes'
+
+adminedit.form:
+  path: '/guest/editt/{cid}'
+  defaults:
+    _form: 'Drupal\alexandr_guest\Form\AdminEditForm'
+  requirements:
+    _permission: 'administer nodes'
+
+alexandr_guest.admin_form:
+  path: '/admin/structure/guest_book'
+  defaults:
+    _form: 'Drupal\alexandr_guest\Form\AdminForm'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE

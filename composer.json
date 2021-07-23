@@ -23,7 +23,10 @@
         "drupal/core-project-message": "^9",
         "drupal/core-recommended": "^9",
         "drupal/empty_page": "^3.0",
-        "drush/drush": "^10.2"
+        "drush/drush": "^10.2",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-pdo": "*"
     },
     "conflict": {
         "drupal/drupal": "*"

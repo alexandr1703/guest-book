@@ -2,3 +2,10 @@ alexandr_guest-style:
   css:
     theme:
       css/Gtable.css: {}
+      css/Gform.css: {}
+
+alexandr_guest-js:
+  js:
+    js/script.js: {}
+  dependencies:
+    - core/jquery

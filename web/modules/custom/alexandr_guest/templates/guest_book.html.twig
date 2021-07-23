@@ -1,6 +1,9 @@
 {{ attach_library('alexandr_guest/alexandr_guest-style') }}
-<div class="guest-form">
-  {{ form }}
+{{ attach_library('alexandr_guest/alexandr_guest-js') }}
+<div class="wraper-guest-form">
+  <div class="guest-form">
+    {{ form }}
+  </div>
 </div>
 {% for item in items %}
   <div class="col-md-6 table-guest">
@@ -8,7 +11,7 @@
       <div class="row row-user-name col-md-3">
         <div class="col-md-3 ">
           {% if item.avatar %}
-            <div class="image-avatar">{{ item.avatar }}</div>
+            <div class="image-avatar" onclick ='clickImage(this)'>{{ item.avatar }}</div>
           {% else %}
             <div class="image-avatar"><img alt="avatar" src="/modules/custom/alexandr_guest/img/default-avatar.png"></div>
           {% endif %}

@@ -36,7 +36,6 @@ class DeleteForm extends ConfirmFormBase {
     $result = $connection->delete('alexandr_guest');
     $result->condition('id', $this->ctid);
     $result->execute();
-//    $current_path = \Drupal::service('path.current')->getPath();
     $response = new RedirectResponse('/alexandr/guest');
     $response->send();
     \Drupal::messenger()->addMessage($this->t('Entry deleted successfully'), 'status', TRUE);
@@ -60,7 +59,7 @@ class DeleteForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return $this->t('Do you want to delete %id?', ['%id' => $this->ctid]);
+    return $this->t('Do you want to delete this record?');
 
   }
 

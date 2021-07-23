@@ -1,0 +1,6 @@
+alexandr.admin_settings_form:
+  title: 'Guest book'
+  route_name: alexandr_guest.admin_form
+  description: 'All users comments'
+  parent: system.admin_structure
+  weight: 99

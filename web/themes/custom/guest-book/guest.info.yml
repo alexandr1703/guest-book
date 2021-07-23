@@ -1,6 +1,6 @@
 name: guest
 type: theme
-description: This is sub theme of Classy
+description: This is sub theme of Bartik
 core_version_requirement: ^8 || ^9
 # Defines the base theme
 base theme: bartik

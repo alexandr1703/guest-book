@@ -8,7 +8,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
 use Drupal\Core\Url;
-use Drupal\Core\Entity\Entity\EntityViewDisplay;
 
 /**
  * Class GuestController.
@@ -36,7 +35,7 @@ class GuestController extends  ControllerBase {
   }
 
   /**
-   * Get all cats for page.
+   * Get all records from database.
    *
    * @return array
    *   A simple array.
@@ -51,13 +50,11 @@ class GuestController extends  ControllerBase {
 
 
   /**
-   * Render table of comments.
+   * Render table of contents.
+   *
+   * @return array
    */
   public function report() {
-    $url = Url::fromRoute('alexandr_guest.form', []);
-    if ($url->isRouted()) {
-      $out = $url->toString();
-    }
     $form = $this->createForm();
     $info = json_decode(json_encode($this->load()), TRUE);
     $info = array_reverse($info);

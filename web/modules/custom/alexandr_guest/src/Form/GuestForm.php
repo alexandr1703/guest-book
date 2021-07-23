@@ -2,17 +2,13 @@
 
 namespace Drupal\alexandr_guest\Form;
 
-use Drupal\Core\Ajax\InsertCommand;
 use Drupal\Core\Ajax\RedirectCommand;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element\Textfield;
-use Drupal\Core\Render\Element\Tel;
 use Drupal\Core\Url;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\file\Entity\File;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 
 /**
@@ -27,11 +23,13 @@ class GuestForm extends FormBase {
     return 'quest_form';
   }
 
+  /**
+   * Build form.
+   */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['system_messages'] = [
+    $form['messages-name'] = [
       '#type' => 'html_tag',
       '#tag' => 'div',
-      '#weight' => -100,
       '#attributes' => [
         'class' => ['form-message'],
       ],
@@ -43,46 +41,11 @@ class GuestForm extends FormBase {
       '#required' => TRUE,
       '#maxlength' => 32,
       '#minlength' => 2,
+      '#description' => t('More than 1 symbol.'),
       '#ajax' => [
         'callback' => '::setMessageName',
-        'event' => 'keyup',
+        'event' => 'change',
       ],
-    ];
-
-    $form['email'] = [
-      '#type' => 'email',
-      '#title' => $this->t('Your email'),
-      '#required' => TRUE,
-      '#attributes' => [
-        'placeholder' => t('example@gmail.com'),
-      ],
-      '#ajax' => [
-        'callback' => '::setMessageEmail',
-        'event' => 'keyup',
-      ],
-    ];
-
-    $form['phone_number'] = [
-      '#type' => 'tel',
-      '#title' => $this->t('Your phone'),
-      '#required' => TRUE,
-      '#attributes' => [
-        'placeholder' => t('666-666-6666'),
-      ],
-      '#ajax' => [
-        'callback' => '::setMessagePhone',
-        'event' => 'keyup',
-      ],
-    ];
-
-    $form['comment'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Your comment'),
-      '#required' => TRUE,
-      '#ajax' => [
-      'callback' => '::setMessageComment',
-      'event' => 'change',
-    ],
     ];
 
     $form['avatar'] = [
@@ -96,6 +59,64 @@ class GuestForm extends FormBase {
       '#theme' => 'image_widget',
       '#preview_image_style' => 'medium',
       '#upload_location' => 'public://module_image',
+    ];
+    $form['messages-email'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
+      '#attributes' => [
+        'class' => ['form-message-email'],
+      ],
+    ];
+
+    $form['email'] = [
+      '#type' => 'email',
+      '#title' => $this->t('Your email'),
+      '#required' => TRUE,
+      '#description' => t('example@gmail.com'),
+      '#attributes' => [
+        'placeholder' => t('example@gmail.com'),
+      ],
+      '#ajax' => [
+        'callback' => '::setMessageEmail',
+        'event' => 'change',
+      ],
+    ];
+    $form['messages-phone'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
+      '#attributes' => [
+        'class' => ['form-message-phone'],
+      ],
+    ];
+    $form['phone_number'] = [
+      '#type' => 'tel',
+      '#title' => $this->t('Your phone'),
+      '#required' => TRUE,
+      '#maxlength' => 10,
+      '#description' => t('Only number.'),
+      '#attributes' => [
+        'placeholder' => t('6666666666'),
+      ],
+      '#ajax' => [
+        'callback' => '::setMessagePhone',
+        'event' => 'change',
+      ],
+    ];
+    $form['messages-comment'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
+      '#attributes' => [
+        'class' => ['form-message-comment'],
+      ],
+    ];
+    $form['comment'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Your comment'),
+      '#required' => TRUE,
+      '#ajax' => [
+      'callback' => '::setMessageComment',
+      'event' => 'change',
+    ],
     ];
 
     $form['image'] = [
@@ -127,6 +148,9 @@ class GuestForm extends FormBase {
     return $form;
   }
 
+  /**
+   * AJAX validation for name.
+   */
   public function setMessageName(array $form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
     $name = $form_state->getValue('name');
@@ -134,7 +158,7 @@ class GuestForm extends FormBase {
       $response->addCommand(
         new HtmlCommand(
           '.form-message',
-          '<div class="my-message">' . $this->t('Enter correct name.')
+          '<div class="my-message-error">' . $this->t('Enter correct name.')
         )
       );
     }
@@ -149,42 +173,49 @@ class GuestForm extends FormBase {
     return $response;
   }
 
+  /**
+   * AJAX validation for phone.
+   */
   public function setMessagePhone(array $form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
     $phone = $form_state->getValue('phone_number');
-    if (((!preg_match('/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/', $phone)) && (!preg_match('/^[0-9]{10}$/', $phone)))) {
+    if ((!preg_match('/^[0-9]{10}$/', $phone))) {
       $response->addCommand(
         new HtmlCommand(
-          '.form-message',
-          '<div class="my-message">' . $this->t('Enter correct phone number in format: 666-666-6666 or 1234567890 ')
+          '.form-message-phone',
+          '<div class="my-message-error">' . $this->t('Enter correct phone number in format: 1234567890 ')
         )
       );
     }
     else {
       $response->addCommand(
         new HtmlCommand(
-          '.form-message',
+          '.form-message-phone',
           '<div class="my-message">' . $this->t('Phone: Ok!')
         )
       );
     }
     return $response;
   }
+
+  /**
+   * AJAX validation for email.
+   */
   public function setMessageEmail(array $form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
     $email = $form_state->getValue('email');
     if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/^[A-Za-z-_]+[@]+[a-z]{2,12}+[.]+[a-z]{2,7}+$/', $email)) {
       $response->addCommand(
         new HtmlCommand(
-          '.form-message',
-          '<div class="my-message">' . $this->t('Enter correct email in format: example@gmail.com.')
+          '.form-message-email',
+          '<div class="my-message-error">' . $this->t('Enter correct email in format: example@gmail.com.')
         )
       );
     }
     else {
       $response->addCommand(
         new HtmlCommand(
-          '.form-message',
+          '.form-message-email',
           '<div class="my-message">' . $this->t('Email: Ok!')
         )
       );
@@ -192,21 +223,24 @@ class GuestForm extends FormBase {
     return $response;
   }
 
+  /**
+   * AJAX validation for comment.
+   */
   public function setMessageComment(array $form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
     $comment = $form_state->getValue('comment');
     if (strlen($comment) <= 1) {
       $response->addCommand(
         new HtmlCommand(
-          '.form-message',
-          '<div class="my-message">' . $this->t('Enter longer comment, be more creative)')
+          '.form-message-comment',
+          '<div class="my-message-error">' . $this->t('Enter longer comment, be more creative)')
         )
       );
     }
     else {
       $response->addCommand(
         new HtmlCommand(
-          '.form-message',
+          '.form-message-comment',
           '<div class="my-message">' . $this->t('Good comment!')
         )
       );
@@ -214,6 +248,9 @@ class GuestForm extends FormBase {
     return $response;
   }
 
+  /**
+   * Validation form.
+   */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
     $name = $form_state->getValue('name');
@@ -226,13 +263,16 @@ class GuestForm extends FormBase {
     if (strlen($name) > 1) {
       $errorArray[0] = 1;
     }
+    if (strlen($name) <= 1){
+      $errorArray[0] = 0;
+    }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/^[A-Za-z-_]+[@]+[a-z]{2,12}+[.]+[a-z]{2,7}+$/', $email)) {
       $errorArray[1] = 0;
     }
     else {
       $errorArray[1] = 1;
     }
-    if (strlen($phone) > 0 && ((!preg_match('/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/', $phone)) && (!preg_match('/^[0-9]{10}/', $phone)))) {
+    if  (!preg_match('/^[0-9]{10}/', $phone)) {
       $errorArray[2] = 0;
     }
     else {
@@ -242,7 +282,6 @@ class GuestForm extends FormBase {
       $errorArray[3] = 1;
     }
     if ($errorArray[0] == 1 && $errorArray[1] == 1 && $errorArray[2] == 1 && $errorArray[3] == 1) {
-//      \Drupal::messenger()->addMessage($this->t('Thanks for your comment')));
       return TRUE;
     }
   }
@@ -277,6 +316,9 @@ class GuestForm extends FormBase {
     return $ajax_response;
   }
 
+  /**
+   * Submit form.
+   */
   public function submitForm(array &$form, FormStateInterface $form_state)
   {
     $time = time();
